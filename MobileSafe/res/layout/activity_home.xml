@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        style="@style/TitleStyle"
+        android:text="功能列表" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:singleLine="true"
+        android:text="手机卫士,你的贴身好管家,能防盗, 能杀毒,能清理缓存,能GPS定位,等等等,哈哈哈哈哈哈哈"
+        android:textColor="#000"
+        android:textSize="18sp" />
+
+    <!-- <com.startapp.android.publish.banner.Banner
+        android:id="@+id/startAppBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true" /> -->
+
+    <GridView
+        android:id="@+id/gv_home"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="3"
+        android:verticalSpacing="15dp" />
+
+</LinearLayout>

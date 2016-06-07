@@ -8,13 +8,31 @@
         android:minSdkVersion="10"
         android:targetSdkVersion="17" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- <uses-permission android:name="android.permission.BIND_DEVICE_ADMIN" /> -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.ivy.mobilesafe" >
+    </instrumentation>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <uses-library android:name="android.test.runner" />
+
         <activity
-            android:name="com.ivy.mobilesafe.MainActivity"
+            android:name="com.ivy.mobilesafe.activity.SplashActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,6 +40,70 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.ivy.mobilesafe.activity.HomeActivity" />
+        <activity android:name="com.ivy.mobilesafe.activity.LostAndFindActivity" />
+        <activity android:name="com.ivy.mobilesafe.activity.Setup1Activity" />
+        <activity android:name="com.ivy.mobilesafe.activity.Setup2Activity" />
+        <activity android:name="com.ivy.mobilesafe.activity.Setup3Activity" />
+        <activity android:name="com.ivy.mobilesafe.activity.Setup4Activity" />
+        <activity android:name="com.ivy.mobilesafe.activity.SettingActivity" />
+        <activity android:name="com.ivy.mobilesafe.activity.AToolsActivity" />
+        <activity android:name="com.ivy.mobilesafe.activity.CommonNumberActivity" />
+        <activity android:name="com.ivy.mobilesafe.activity.AddressQueryActivity" />
+        <activity android:name="com.ivy.mobilesafe.activity.BlackNumberActivity" />
+        <activity
+            android:name="com.ivy.mobilesafe.activity.DragViewActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <provider
+            android:name="com.ivy.mobilesafe.provider.BlackNumberContentPrvider"
+            android:authorities="com.ivy.mobilesafe.blacknumber"
+            android:exported="true" >
+        </provider>
+
+        <receiver android:name="com.ivy.mobilesafe.receiver.BootCompleteReceiver" >
+            <intent-filter android:priority="1000" >
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.ivy.mobilesafe.receiver.SmsReciver" >
+            <intent-filter android:priority="1000" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.ivy.mobilesafe.service.LocationService" >
+            <intent-filter>
+                <action android:name="com.ivy.mobilesafe.location" />
+            </intent-filter>
+        </service>
+        <service android:name="com.ivy.mobilesafe.service.ShowCallService" />
+        <service android:name="com.ivy.mobilesafe.service.BlackNumberService" />
+
+        <!-- 管理员 -->
+        <activity
+            android:name=".app.DeviceAdminSample"
+            android:label="@string/activity_sample_device_admin" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name="android.app.admin.DeviceAdminReceiver"
+            android:description="@string/sample_device_admin_description"
+            android:label="@string/sample_device_admin"
+            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin_sample" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

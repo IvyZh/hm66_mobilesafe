@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:ivy="http://schemas.android.com/apk/res/com.ivy.mobilesafe"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textView1"
+        style="@style/TitleStyle"
+        android:text="设置中心" />
+
+    <com.ivy.mobilesafe.ui.SettingItemView
+        android:id="@+id/siv_update"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ivy:desc_off="自动更新已关闭"
+        ivy:desc_on="自动更新已开启"
+        ivy:title="自动更新设置" />
+
+    <com.ivy.mobilesafe.ui.SettingItemView
+        android:id="@+id/siv_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ivy:desc_off="归属地显示已经关闭"
+        ivy:desc_on="归属地显示已经开启"
+        ivy:title="电话归属地显示设置" />
+
+    <com.ivy.mobilesafe.ui.SettingItemClickView
+        android:id="@+id/sic_style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.ivy.mobilesafe.ui.SettingItemClickView
+        android:id="@+id/sic_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.ivy.mobilesafe.ui.SettingItemView
+        android:id="@+id/siv_black_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ivy:desc_off="黑名单拦截已经关闭"
+        ivy:desc_on="黑名单拦截已经开启"
+        ivy:title="黑名单拦截设置" />
+
+    <com.ivy.mobilesafe.ui.SettingItemView
+        android:id="@+id/siv_app_lock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        ivy:desc_off="程序锁已经关闭"
+        ivy:desc_on="程序锁已经开启"
+        ivy:title="程序锁设置" />
+
+</LinearLayout>
