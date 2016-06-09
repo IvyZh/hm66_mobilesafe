@@ -2,6 +2,7 @@ package com.ivy.mobilesafe.utils;
 
 import com.ivy.mobilesafe.log.L;
 
+import android.R.color;
 import android.database.Cursor;
 
 public class CursorUtils {
@@ -19,7 +20,7 @@ public class CursorUtils {
 				}
 				L.v("==========================================");
 			}
-			
+//			cursor.moveToFirst();
 		}
 	}
 

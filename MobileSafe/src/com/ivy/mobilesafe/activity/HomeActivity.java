@@ -59,7 +59,9 @@ public class HomeActivity extends BaseActivity {
 							BlackNumberActivity.class));
 					break;
 				case 2:
-
+					// 软件管理
+					startActivity(new Intent(getApplicationContext(),
+							AppManagerActivity.class));
 					break;
 				case 3:
 
@@ -75,7 +77,7 @@ public class HomeActivity extends BaseActivity {
 					break;
 				case 7:
 					startActivity(new Intent(getApplicationContext(),
-							AToolsActivity.class));//高级工具
+							AToolsActivity.class));// 高级工具
 					break;
 				case 8:
 					startActivity(new Intent(getApplicationContext(),
@@ -178,9 +180,10 @@ public class HomeActivity extends BaseActivity {
 
 				if (!TextUtils.isEmpty(pwd) && !TextUtils.isEmpty(pwdConfirm)) {
 					if (pwd.equals(pwdConfirm)) {
-						//保存设置过的密码的标签
-						SharedPreUtils.putBoolean(getApplicationContext(), "setpwd", true);
-						
+						// 保存设置过的密码的标签
+						SharedPreUtils.putBoolean(getApplicationContext(),
+								"setpwd", true);
+
 						// 保存密码
 						SharedPreUtils.putString(getApplicationContext(),
 								"password", MD5Utils.encode(pwd));

@@ -22,10 +22,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
@@ -121,6 +123,45 @@ public class SplashActivity extends BaseActivity {
 
 		// 拷贝数据库
 		copyDB("address.db");
+
+		// 创建桌面快捷方式
+
+		boolean createshortcut = SharedPreUtils.getBoolean(this,
+				"createshortcut");
+		if (!createshortcut) {
+			L.v("---创建桌面快捷方式---");
+			 SharedPreUtils.putBoolean(this, "createshortcut", true);
+			// Intent intent = new Intent();
+			// intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+			// intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "手机卫士");
+			// intent.putExtra(Intent.EXTRA_SHORTCUT_ICON,
+			// BitmapFactory.decodeResource(getResources(),
+			// R.drawable.ic_launcher));
+			//
+			//
+			// Intent actionIntent = new Intent();
+			// actionIntent.setClass(this, SplashActivity.class);
+			// actionIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+			//
+			// intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, actionIntent);
+			// sendBroadcast(actionIntent);
+
+			Intent shortcutintent = new Intent(
+					"com.android.launcher.action.INSTALL_SHORTCUT");
+			// 不允许重复创建
+			shortcutintent.putExtra("duplicate", false);
+			// 需要现实的名称
+			shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "手机卫士");
+			// 快捷图片
+			Parcelable icon = Intent.ShortcutIconResource.fromContext(
+					getApplicationContext(), R.drawable.ic_launcher);
+			shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+			// 点击快捷图片，运行的程序主入口
+			shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(
+					getApplicationContext(), SplashActivity.class));
+			// 发送广播。OK
+			sendBroadcast(shortcutintent);
+		}
 	}
 
 	/**
@@ -130,9 +171,9 @@ public class SplashActivity extends BaseActivity {
 	 */
 	private void copyDB(final String name) {
 		final File file = new File(getFilesDir(), name);
-		
-		L.v("copy db "+file.length());
-		if(!file.exists()){
+
+		L.v("copy db " + file.length());
+		if (!file.exists()) {
 			new Thread(new Runnable() {
 
 				private FileOutputStream fos;
@@ -144,15 +185,15 @@ public class SplashActivity extends BaseActivity {
 					try {
 						is = assets.open(name);
 						fos = new FileOutputStream(file);
-						byte[] b = new byte[1024*1024];
+						byte[] b = new byte[1024 * 1024];
 						int len = 0;
 
 						while ((len = is.read(b)) != -1) {
-							L.v("copy---"+len);
+							L.v("copy---" + len);
 							fos.write(b, 0, len);
 						}
-						
-						L.v("数据库 "+ name+" 拷贝成功");
+
+						L.v("数据库 " + name + " 拷贝成功");
 
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -167,8 +208,8 @@ public class SplashActivity extends BaseActivity {
 					}
 				}
 			}).start();
-		}else{
-			L.v("数据库 "+name+" 已经存在，无需拷贝");
+		} else {
+			L.v("数据库 " + name + " 已经存在，无需拷贝");
 		}
 	}
 
