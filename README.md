@@ -414,3 +414,224 @@
 
 26. 小火箭
 27. 黑名单（使用内容观察者实现
+	1. 注册短信拦截
+
+			// 注册黑名单短信拦截服务
+
+			smsBlockBroadCast = new SmsBlockBroadCast();
+	
+			IntentFilter filter = new IntentFilter();
+			filter.addAction("android.provider.Telephony.SMS_RECEIVED");
+			filter.setPriority(Integer.MAX_VALUE);
+			registerReceiver(smsBlockBroadCast, filter);
+	2. 解除注册
+
+			L.v("--黑名单拦截服务--onDestory");
+			unregisterReceiver(smsBlockBroadCast);
+			smsBlockBroadCast = null;
+	3. 短信的广播接受者
+
+			/**
+			 * 短信广播接受者
+			 */
+			class SmsBlockBroadCast extends BroadcastReceiver {
+		
+				@Override
+				public void onReceive(Context context, Intent intent) {
+		
+					L.v("---smsBlockBroadCast---");
+					Object[] object = (Object[]) intent.getExtras().get("pdus");
+		
+					for (Object obj : object) {
+						SmsMessage sms = SmsMessage.createFromPdu((byte[]) obj);
+						String address = sms.getOriginatingAddress();
+						int mode = BlackNumberDao.getMode(getApplicationContext(),
+								address);
+						L.v("--黑名单--短信来了--" + address + ",mode:" + mode);
+		
+						if (mode == 1) {// 电话拦截
+		
+						} else if (mode == 2) {// 短信拦截
+							abortBroadcast();
+						} else if (mode == 3) {// 全部拦截
+							abortBroadcast();
+						}
+					}
+		
+				}
+		
+			}
+	
+28. 判断服务是否在运行
+
+		public static boolean isRunning(Context ctx,String serviceName){
+			
+			ActivityManager am = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+			List<RunningServiceInfo> services = am.getRunningServices(100);
+			
+			for (RunningServiceInfo service : services) {
+				
+				String className = service.service.getClassName();
+				L.v("--service runnig--"+className);//06-07 15:11:12.157: V/ivy(10838): --service runnig--
+				if(className.equals(serviceName)){
+					return true;
+				}
+			}
+			
+			return false;
+		}
+
+
+30. 电话拦截
+31. 删除来电记录
+32. 短信备份
+
+		try {
+			XmlSerializer serializer = Xml.newSerializer();
+			File file = new File(getFilesDir(), "sms_backup.xml");
+			serializer.setOutput(new FileOutputStream(file ), "utf-8");
+			serializer.startDocument("utf-8", false);
+			serializer.startTag(null, "smss");
+			for (int i=0;i<smsList.size();i++) {
+				Sms sms = smsList.get(i);
+				pb.setProgress(i);
+				Thread.sleep(50);
+				serializer.startTag(null, "sms");
+				
+				serializer.startTag(null, "_id");
+				serializer.text(sms.get_id()+"");
+				serializer.endTag(null, "_id");
+				
+				serializer.startTag(null, "type");
+				serializer.text(sms.getType()+"");
+				serializer.endTag(null, "type");
+				
+				serializer.startTag(null, "address");
+				serializer.text(sms.getAddress());
+				serializer.endTag(null, "address");
+				
+				serializer.startTag(null, "body");
+				serializer.text(sms.getBody());
+				serializer.endTag(null, "body");
+				
+				serializer.startTag(null, "date");
+				serializer.text(sms.getDate()+"");
+				serializer.endTag(null, "date");
+				
+				serializer.endTag(null, "sms");
+				
+				System.out.println("finish---");
+			}
+			
+			serializer.endTag(null, "smss");
+			serializer.endDocument();
+			
+			runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					pb.setVisibility(View.GONE);
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+33. 创建快捷方式（一键呼叫
+
+		Intent shortcutinntent = new Intent(
+				"com.android.launcher.action.INSTALL_SHORTCUT");
+		// 不允许重复创建
+		shortcutintent.putExtra("duplicate", false);
+		// 需要现实的名称
+		shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "手机卫士");
+		// 快捷图片
+		Parcelable icon = Intent.ShortcutIconResource.fromContext(
+				getApplicationContext(), R.drawable.ic_launcher);
+		shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+		// 点击快捷图片，运行的程序主入口
+		shortcutintent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(
+				getApplicationContext(), SplashActivity.class));
+		// 发送广播。OK
+		sendBroadcast(shortcutitent);
+
+	权限：
+
+ 		<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+
+
+34. 获取SdCard和rom大小
+
+		private String getStorage(String path) {
+			StatFs statFs = new StatFs(path);
+			
+			int blockCount = statFs.getBlockCount();
+			int availableBlocks = statFs.getAvailableBlocks();
+			int blockSize = statFs.getBlockSize();
+			String allSize = Formatter.formatFileSize(this, blockSize*blockCount);
+			String avaSize = Formatter.formatFileSize(this, blockSize*availableBlocks);
+			
+			return avaSize;
+		}
+
+
+35. 获得安装的APP列表
+
+		public static ArrayList<AppInfo> getInstallApp(Context ctx){
+			PackageManager pm = ctx.getPackageManager();
+			List<PackageInfo> list = pm.getInstalledPackages(0);
+			ArrayList<AppInfo> appInfoList = new ArrayList<AppInfo>();
+			for (PackageInfo packageInfo : list) {
+				AppInfo appInfo = new AppInfo();
+				appInfo.packageName = packageInfo.packageName;
+				ApplicationInfo applicationInfo = packageInfo.applicationInfo;
+				appInfo.logo = applicationInfo.loadIcon(pm);
+				appInfo.name = applicationInfo.loadLabel(pm).toString();
+				appInfoList.add(appInfo);
+			}
+			return appInfoList;
+		}
+
+
+36. 判断应用是系统应用还是用户应用，安装在外部还是内部存储空间
+
+		int flags = applicationInfo.flags;
+			if((flags & ApplicationInfo.FLAG_EXTERNAL_STORAGE)==ApplicationInfo.FLAG_EXTERNAL_STORAGE){
+				appInfo.isRom = false;
+			}else{
+				appInfo.isRom = true;
+			}
+			
+			if((flags& ApplicationInfo.FLAG_SYSTEM)==ApplicationInfo.FLAG_SYSTEM){
+				appInfo.isUser = false;
+			}else{
+				appInfo.isUser = true;
+			}
+
+37. BaseAdapter的两个方法
+
+		@Override
+		public int getViewTypeCount() {
+			return 2;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			if (position == 0 || position == userAppList.size() + 1) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+
+
+38. 监听ListView滑动事件
+
+		if(firstVisibleItem <= userAppList.size()){
+			tvHeader.setText("用户应用(" + userAppList.size() + ")");
+		}else{
+			tvHeader.setText("系统应用(" + systemAppList.size()
+					+ ")");
+		}
+
+39. popupwindow
