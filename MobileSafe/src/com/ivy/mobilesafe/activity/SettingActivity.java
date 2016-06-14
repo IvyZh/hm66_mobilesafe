@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import com.ivy.mobilesafe.R;
 import com.ivy.mobilesafe.base.BaseActivity;
 import com.ivy.mobilesafe.log.L;
+import com.ivy.mobilesafe.service.AppLockService;
 import com.ivy.mobilesafe.service.BlackNumberService;
 import com.ivy.mobilesafe.service.ShowCallService;
 import com.ivy.mobilesafe.ui.SettingItemClickView;
@@ -25,10 +26,14 @@ public class SettingActivity extends BaseActivity {
 	private String[] mItems = new String[] { "半透明", "活力橙", "卫士蓝", "金属灰", "苹果绿" };
 	private SettingItemClickView sicLocation;
 	private SettingItemView sivBlackNumber;
+	private SettingItemView sivAppLock;
 
 	@Override
 	public void initView() {
 		setContentView(R.layout.activity_setting);
+		
+		int a =0;
+		System.out.println(1/a);
 
 		sivUpdate = (SettingItemView) findViewById(R.id.siv_update);
 		boolean autoupdate = SharedPreUtils.getBoolean(this, "autoupdate");
@@ -44,6 +49,9 @@ public class SettingActivity extends BaseActivity {
 		sicLocation = (SettingItemClickView) findViewById(R.id.sic_location);
 		sicLocation.setTitle("归属地提示框位置");
 		sicLocation.setDesc("设置归属地提示框位置");
+		
+		
+		sivAppLock = (SettingItemView) findViewById(R.id.siv_app_lock);
 
 	}
 
@@ -60,7 +68,10 @@ public class SettingActivity extends BaseActivity {
 
 		int style = SharedPreUtils.getInt(this, "style");
 		sicStyle.setDesc(mItems[style]);
-
+		
+		
+		boolean appLock = ServiceStatusUtils.isRunning(this, AppLockService.class.getName());
+		sivAppLock.setChecked(appLock);
 	}
 
 	@Override
@@ -141,6 +152,28 @@ public class SettingActivity extends BaseActivity {
 					L.v("--close 黑名单拦截--");
 					if (blackNumberService != null) {
 						stopService(blackNumberService);
+					}
+				}
+			}
+		});
+		
+		// 程序锁
+		sivAppLock.setOnClickListener(new OnClickListener() {
+
+			private Intent appLockService;
+
+			@Override
+			public void onClick(View v) {
+				boolean checked = sivAppLock.getChecked();
+				sivAppLock.setChecked(!checked);
+				if (sivAppLock.getChecked()) {
+					appLockService = new Intent(SettingActivity.this,
+							AppLockService.class);
+					startService(appLockService);
+
+				} else {
+					if (appLockService != null) {
+						stopService(appLockService);
 					}
 				}
 			}

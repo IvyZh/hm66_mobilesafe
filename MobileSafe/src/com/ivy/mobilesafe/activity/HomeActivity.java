@@ -64,15 +64,25 @@ public class HomeActivity extends BaseActivity {
 							AppManagerActivity.class));
 					break;
 				case 3:
-
+					// 进程管理
+					startActivity(new Intent(getApplicationContext(),
+							ProcessManagerActivity.class));
 					break;
 				case 4:
+					// 流量统计
+					startActivity(new Intent(getApplicationContext(),
+							TrafficStatsActivity.class));
 
 					break;
 				case 5:
-
+					// 手机杀毒
+					startActivity(new Intent(getApplicationContext(),
+							AntiVirusActivity.class));
 					break;
 				case 6:
+					// 缓存清理
+					startActivity(new Intent(getApplicationContext(),
+							CacheTabActivity.class));
 
 					break;
 				case 7:

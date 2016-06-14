@@ -1,6 +1,7 @@
 package com.ivy.mobilesafe.activity;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -223,7 +224,9 @@ public class BlackNumberActivity extends BaseActivity {
 
 		ContentValues values = new ContentValues();
 		values.put("type", 1);
-		values.put("number", "6666");
+		values.put("number", "1"+new Random().nextInt(100000)+new Random().nextInt(1000));
 		cr.insert(Uri.parse(Constant.URI.BLACK_NUMBER), values);
+		
+		initData();
 	}
 }

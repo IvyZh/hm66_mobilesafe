@@ -123,6 +123,8 @@ public class SplashActivity extends BaseActivity {
 
 		// 拷贝数据库
 		copyDB("address.db");
+		copyDB("commonnum.db");
+		copyDB("antivirus.db");
 
 		// 创建桌面快捷方式
 

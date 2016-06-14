@@ -52,6 +52,21 @@ public class AToolsActivity extends BaseActivity {
 
 	}
 
+	
+	/**
+	 * 常用号码查询
+	 */
+	public void commonNumberQuery(View view) {
+		startActivity(new Intent(this, CommonNumberActivity.class));
+	}
+	
+	/**
+	 * 程序锁
+	 * @param view
+	 */
+	public void appLock(View view) {
+		startActivity(new Intent(this, AppLockActivity.class));
+	}
 	// 归属地查询
 	public void addressQuery(View v) {
 		startActivity(new Intent(this, AddressQueryActivity.class));

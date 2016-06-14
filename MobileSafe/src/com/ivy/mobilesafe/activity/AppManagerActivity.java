@@ -2,11 +2,20 @@ package com.ivy.mobilesafe.activity;
 
 import java.util.ArrayList;
 
+import android.app.ActionBar.LayoutParams;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
 import android.text.format.Formatter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -14,12 +23,15 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ivy.mobilesafe.R;
 import com.ivy.mobilesafe.base.BaseActivity;
 import com.ivy.mobilesafe.domain.AppInfo;
 import com.ivy.mobilesafe.utils.AppInfoUtils;
+import com.ivy.mobilesafe.utils.ToastUtils;
 
 /**
  * 软件管理
@@ -43,6 +55,7 @@ public class AppManagerActivity extends BaseActivity {
 	private ArrayList<AppInfo> systemAppList;
 	private ArrayList<AppInfo> userAppList;
 	private TextView tvHeader;
+	private AppInfo mCurrentApp;
 
 	@Override
 	public void initView() {
@@ -115,23 +128,58 @@ public class AppManagerActivity extends BaseActivity {
 
 		// 单击条目，弹出操作popupwindow
 		lvApp.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				if(adapter!=null){
-					AppInfo appInfo = adapter.getItem(position);
-					if(appInfo!=null){
-						showPopupWindow();
+				if (adapter != null) {
+					mCurrentApp = adapter.getItem(position);
+					if (mCurrentApp != null) {
+						showPopupWindow(view);
+						// 记录当前点击条目的信息
 					}
 				}
 			}
 		});
 	}
 
-	protected void showPopupWindow() {
-		// TODO Auto-generated method stub
-		
+	PopupWindow popupWindow;
+
+	protected void showPopupWindow(View view) {
+		if (popupWindow != null && popupWindow.isShowing()) {
+			popupWindow.dismiss();
+		} else {
+			View contentView = View.inflate(this, R.layout.popup_item_appinfo,
+					null);
+			popupWindow = new PopupWindow(contentView,
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+			popupWindow.setBackgroundDrawable(new ColorDrawable(
+					android.R.color.holo_blue_light));
+
+			// 加入监听
+			TextView tvUninstall = (TextView) contentView
+					.findViewById(R.id.tv_uninstall);
+			TextView tvLaunch = (TextView) contentView
+					.findViewById(R.id.tv_launch);
+			TextView tvShare = (TextView) contentView
+					.findViewById(R.id.tv_share);
+			tvUninstall.setOnClickListener(this);
+			tvLaunch.setOnClickListener(this);
+			tvShare.setOnClickListener(this);
+			// 加入动画
+
+			ScaleAnimation sa = new ScaleAnimation(0, 1, 0, 1,
+					Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF,
+					0);
+			AlphaAnimation aa = new AlphaAnimation(0, 1);
+			AnimationSet as = new AnimationSet(false);
+			as.setDuration(500);
+			as.addAnimation(sa);
+			as.addAnimation(aa);
+
+			popupWindow.showAsDropDown(view, 50, -view.getHeight());
+			contentView.startAnimation(as);
+		}
+
 	}
 
 	@Override
@@ -171,8 +219,72 @@ public class AppManagerActivity extends BaseActivity {
 
 	@Override
 	public void processClick(View v) {
-		// TODO Auto-generated method stub
+		popupWindow.dismiss();// 弹窗消失
 
+		switch (v.getId()) {
+		case R.id.tv_uninstall:
+			System.out.println("卸载" + mCurrentApp.packageName);
+			uninstall();
+			break;
+		case R.id.tv_launch:
+			System.out.println("启动" + mCurrentApp.packageName);
+			launch();
+			break;
+		case R.id.tv_share:
+			System.out.println("分享" + mCurrentApp.packageName);
+			 share();
+			break;
+		}
+	}
+
+	/**
+	 * 分享应用
+	 */
+	private void share() {
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.setType("text/plain");
+		intent.putExtra(Intent.EXTRA_TEXT, "分享一个APP，下载地址: https://play.google.com/store/apps/details?id="+mCurrentApp.packageName);
+		startActivity(intent);
+	}
+
+	/**
+	 * 启动应用
+	 */
+	private void launch() {
+		if (mCurrentApp != null) {
+			PackageManager pm = getPackageManager();
+			Intent intent = pm.getLaunchIntentForPackage(mCurrentApp.packageName);
+			if(intent!=null){
+				startActivity(intent);
+			}else{
+				ToastUtils.show(this, "找不到启动界面");
+			}
+		}
+	}
+
+	/***
+	 * 卸载应用
+	 */
+	private void uninstall() {
+		if (mCurrentApp != null && mCurrentApp.isUser) {
+			Intent intent = new Intent();
+			// intent.setAction(Intent.ACTION_UNINSTALL_PACKAGE);//api 14
+			intent.setAction(Intent.ACTION_DELETE);
+			intent.setData(Uri.parse("package:" + mCurrentApp.packageName));
+			startActivityForResult(intent, 0);
+		} else {
+			ToastUtils.show(this, "系统应用不能删除");
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		// 更新应用列表
+
+		System.out.println("更新应用列表");
+
+		initData();
 	}
 
 	class MyAdapter extends BaseAdapter {
